@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 /**
  * Created by andres.hernandez on 16/06/16.
@@ -36,6 +35,10 @@ public class ConsumerService extends Service {
 
   @Override public void onDestroy() {
     super.onDestroy();
-    Log.d(getClass().getSimpleName(), "onDestroy()");
+
+    if (mConsumerSocket != null) {
+      mConsumerSocket.stopConsuming();
+      mConsumerSocket = null;
+    }
   }
 }

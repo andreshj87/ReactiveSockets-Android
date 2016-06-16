@@ -4,8 +4,6 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
@@ -16,8 +14,12 @@ public class ConsumerSocket {
   private static final int SOCKET_PORT = 9999;
 
   private Socket mSocket;
+  BufferedReader mBufferedReader;
+  private boolean mConsuming;
 
   public void startConsuming() {
+    mConsuming = true;
+
     try {
       connect();
       consume();
@@ -26,18 +28,30 @@ public class ConsumerSocket {
     }
   }
 
+  public void stopConsuming() {
+    mConsuming = false;
+
+    try {
+      mBufferedReader.close();
+      mSocket.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    Log.d(getClass().getSimpleName(), "Manually stopped consuming");
+  }
+
   private void connect() throws IOException {
-    mSocket = new Socket();
-    mSocket.setReuseAddress(true);
-    mSocket.bind(new InetSocketAddress("localhost", SOCKET_PORT));
+    mSocket = new Socket("localhost", SOCKET_PORT);
   }
 
   private void consume() throws IOException {
-    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(mSocket.getInputStream()));
-    String message;
-    while (mSocket.isConnected()) {
-      message = bufferedReader.readLine();
+    mBufferedReader = new BufferedReader(new InputStreamReader(mSocket.getInputStream()));
+    String message = new String();
+    while (!mSocket.isClosed() && message != null && mConsuming) {
+      message = mBufferedReader.readLine();
       Log.d(getClass().getSimpleName(), "C> Reading: " + message);
     }
+    Log.d(getClass().getSimpleName(), "C> Stopped consuming");
   }
 }
