@@ -11,6 +11,7 @@ import butterknife.OnClick;
 import com.zireck.reactivesockets.R;
 import com.zireck.reactivesockets.ui.presenter.MainPresenter;
 import com.zireck.reactivesockets.ui.view.MainView;
+import com.zireck.reactivesockets.utils.ConsumerService;
 import com.zireck.reactivesockets.utils.ProducerService;
 
 public class MainActivity extends AppCompatActivity implements MainView {
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
   }
 
   @OnClick(R.id.button_consumer) void onClickConsumer() {
-
+    mPresenter.onClickConsumer();
   }
 
   @Override public void startProducerService() {
@@ -54,5 +55,21 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
   @Override public void notifyProducerStopped() {
     mButtonProducer.setText(getString(R.string.start_producer));
+  }
+
+  @Override public void startConsumerService() {
+    startService(new Intent(this, ConsumerService.class));
+  }
+
+  @Override public void stopConsumerService() {
+    stopService(new Intent(this, ConsumerService.class));
+  }
+
+  @Override public void notifyConsumerStarted() {
+    mButtonConsumer.setText(getString(R.string.stop_consumer));
+  }
+
+  @Override public void notifyConsumerStopped() {
+    mButtonConsumer.setText(getString(R.string.start_consumer));
   }
 }

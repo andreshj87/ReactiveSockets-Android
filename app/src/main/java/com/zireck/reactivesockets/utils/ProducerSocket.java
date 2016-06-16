@@ -28,12 +28,18 @@ public class ProducerSocket {
   }
 
   public void startProducing() {
-    while (true) {
+    Socket clientSocket;
+    do {
       Log.d(getClass().getSimpleName(), "P> Waiting for new client.");
-      Socket clientSocket = acceptNewClient();
-      Log.d(getClass().getSimpleName(), "P> New client connected: " + clientSocket.getRemoteSocketAddress().toString());
+      clientSocket = acceptNewClient();
+
+      if (clientSocket != null && clientSocket.getRemoteSocketAddress() != null) {
+        Log.d(getClass().getSimpleName(),
+            "P> New client connected: " + clientSocket.getRemoteSocketAddress().toString());
+      }
+
       processClient(clientSocket);
-    }
+    } while (clientSocket != null && clientSocket.isConnected());
   }
 
   private Socket acceptNewClient() {
