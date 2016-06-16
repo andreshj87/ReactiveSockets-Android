@@ -7,8 +7,10 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -19,6 +21,7 @@ import com.zireck.reactivesockets.utils.ConsumerService;
 import com.zireck.reactivesockets.utils.ProducerService;
 import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
   @BindView(R.id.button_producer) Button mButtonProducer;
   @BindView(R.id.button_consumer) Button mButtonConsumer;
+  @BindView(R.id.consumer_status) TextView mConsumerStatus;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -39,6 +43,15 @@ public class MainActivity extends AppCompatActivity implements MainView {
     ButterKnife.bind(this);
 
     initialize();
+  }
+
+  @Override protected void onStop() {
+    super.onStop();
+
+    if (mConsumerServiceBound) {
+      unbindService(mConsumerServiceConnection);
+      mConsumerServiceBound = false;
+    }
   }
 
   private void initialize() {
@@ -95,10 +108,34 @@ public class MainActivity extends AppCompatActivity implements MainView {
           ((ConsumerService.ConsumerServiceBinder) service);
       mConsumerService = binder.getService();
       mConsumerServiceBound = true;
+
+      mConsumerService.setSubscriber(new Subscriber<Integer>() {
+        @Override public void onCompleted() {
+          Log.d(getClass().getSimpleName(), "startConsumerService()::observer::onCompleted()");
+          append("onCompleted");
+        }
+
+        @Override public void onError(Throwable e) {
+
+        }
+
+        @Override public void onNext(Integer integer) {
+          Log.d(getClass().getSimpleName(), "startConsumerService()::observer::onNext() -> " + integer);
+          append(String.valueOf(integer));
+        }
+      });
     }
 
     @Override public void onServiceDisconnected(ComponentName name) {
       mConsumerServiceBound = false;
     }
   };
+
+  private void append(String text) {
+    String currentText = mConsumerStatus.getText().toString();
+    if (!TextUtils.isEmpty(currentText)) {
+      currentText += ", " + text;
+    }
+    mConsumerStatus.setText(currentText);
+  }
 }

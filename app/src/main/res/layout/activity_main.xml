@@ -28,4 +28,10 @@
       android:textAllCaps="false"
       />
 
+  <TextView
+      android:id="@+id/consumer_status"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      />
+
 </LinearLayout>
