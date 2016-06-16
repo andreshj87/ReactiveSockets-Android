@@ -9,4 +9,9 @@ public interface MainView {
   void stopProducerService();
   void notifyProducerStarted();
   void notifyProducerStopped();
+
+  void startConsumerService();
+  void stopConsumerService();
+  void notifyConsumerStarted();
+  void notifyConsumerStopped();
 }

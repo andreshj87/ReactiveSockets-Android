@@ -22,6 +22,12 @@
       android:name=".utils.ProducerService"
       android:enabled="true"
       android:exported="true"/>
+
+    <service
+      android:name=".utils.ConsumerService"
+      android:enabled="true"
+      android:exported="true"/>
+
   </application>
 
 </manifest>

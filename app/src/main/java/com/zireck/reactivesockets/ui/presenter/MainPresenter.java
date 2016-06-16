@@ -9,6 +9,7 @@ public class MainPresenter {
 
   private MainView mView;
   private boolean mIsProducing = false;
+  private boolean mIsConsuming = false;
 
   public MainPresenter(MainView view) {
     mView = view;
@@ -24,6 +25,18 @@ public class MainPresenter {
     }
 
     mIsProducing = !mIsProducing;
+  }
+
+  public void onClickConsumer() {
+    if (!mIsConsuming) {
+      mView.startConsumerService();
+      mView.notifyConsumerStarted();
+    } else {
+      mView.stopConsumerService();
+      mView.notifyConsumerStopped();
+    }
+
+    mIsConsuming = !mIsConsuming;
   }
 
 }
