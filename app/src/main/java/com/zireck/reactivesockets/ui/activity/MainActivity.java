@@ -1,7 +1,11 @@
 package com.zireck.reactivesockets.ui.activity;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Button;
@@ -13,10 +17,18 @@ import com.zireck.reactivesockets.ui.presenter.MainPresenter;
 import com.zireck.reactivesockets.ui.view.MainView;
 import com.zireck.reactivesockets.utils.ConsumerService;
 import com.zireck.reactivesockets.utils.ProducerService;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.Subscriptions;
 
 public class MainActivity extends AppCompatActivity implements MainView {
 
   private MainPresenter mPresenter;
+  private ConsumerService mConsumerService;
+  private boolean mConsumerServiceBound = false;
 
   @BindView(R.id.button_producer) Button mButtonProducer;
   @BindView(R.id.button_consumer) Button mButtonConsumer;
@@ -58,11 +70,15 @@ public class MainActivity extends AppCompatActivity implements MainView {
   }
 
   @Override public void startConsumerService() {
-    startService(new Intent(this, ConsumerService.class));
+    Intent intent = new Intent(this, ConsumerService.class);
+    bindService(intent, mConsumerServiceConnection, Context.BIND_AUTO_CREATE);
   }
 
   @Override public void stopConsumerService() {
-    stopService(new Intent(this, ConsumerService.class));
+    if (mConsumerServiceBound) {
+      unbindService(mConsumerServiceConnection);
+      mConsumerServiceBound = false;
+    }
   }
 
   @Override public void notifyConsumerStarted() {
@@ -72,4 +88,17 @@ public class MainActivity extends AppCompatActivity implements MainView {
   @Override public void notifyConsumerStopped() {
     mButtonConsumer.setText(getString(R.string.start_consumer));
   }
+
+  private ServiceConnection mConsumerServiceConnection = new ServiceConnection() {
+    @Override public void onServiceConnected(ComponentName name, IBinder service) {
+      ConsumerService.ConsumerServiceBinder binder =
+          ((ConsumerService.ConsumerServiceBinder) service);
+      mConsumerService = binder.getService();
+      mConsumerServiceBound = true;
+    }
+
+    @Override public void onServiceDisconnected(ComponentName name) {
+      mConsumerServiceBound = false;
+    }
+  };
 }
