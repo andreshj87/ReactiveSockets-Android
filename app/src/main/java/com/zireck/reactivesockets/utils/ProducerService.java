@@ -26,10 +26,18 @@ public class ProducerService extends Service {
     mProducerThread = new Thread(new Runnable() {
       @Override public void run() {
         mProducerSocket = new ProducerSocket();
-        mProducerSocket.startProducing();
+        mProducerSocket.listen();
       }
     });
 
     mProducerThread.start();
+  }
+
+  @Override public void onDestroy() {
+    super.onDestroy();
+    if (mProducerSocket != null) {
+      mProducerSocket.stopListening();
+      mProducerSocket = null;
+    }
   }
 }
