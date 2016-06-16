@@ -38,7 +38,7 @@ public class ConsumerSocket {
       e.printStackTrace();
     }
 
-    Log.d(getClass().getSimpleName(), "Manually stopped consuming");
+    Log.d(getClass().getSimpleName(), "C> Manually stopped consuming");
   }
 
   private void connect() throws IOException {
