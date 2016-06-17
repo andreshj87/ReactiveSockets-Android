@@ -47,7 +47,9 @@ public class ConsumerSocket {
       if (mBufferedReader != null) {
         mBufferedReader.close();
       }
-      mSocket.close();
+      if (mSocket != null) {
+        mSocket.close();
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }

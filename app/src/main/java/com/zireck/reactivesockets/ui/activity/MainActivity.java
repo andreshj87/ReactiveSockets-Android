@@ -7,8 +7,6 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import butterknife.BindView;
@@ -19,13 +17,7 @@ import com.zireck.reactivesockets.ui.presenter.MainPresenter;
 import com.zireck.reactivesockets.ui.view.MainView;
 import com.zireck.reactivesockets.utils.ConsumerService;
 import com.zireck.reactivesockets.utils.ProducerService;
-import rx.Observable;
-import rx.Observer;
 import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.Subscriptions;
 
 public class MainActivity extends AppCompatActivity implements MainView {
 
@@ -102,6 +94,16 @@ public class MainActivity extends AppCompatActivity implements MainView {
     mButtonConsumer.setText(getString(R.string.start_consumer));
   }
 
+  @Override public void setSubscriber(Subscriber subscriber) {
+    mConsumerService.setSubscriber(subscriber);
+  }
+
+  @Override
+  public void append(String text) {
+    String currentText = mConsumerStatus.getText().toString();
+    mConsumerStatus.setText(String.format("%s\n%s", text, currentText));
+  }
+
   private ServiceConnection mConsumerServiceConnection = new ServiceConnection() {
     @Override public void onServiceConnected(ComponentName name, IBinder service) {
       ConsumerService.ConsumerServiceBinder binder =
@@ -109,40 +111,11 @@ public class MainActivity extends AppCompatActivity implements MainView {
       mConsumerService = binder.getService();
       mConsumerServiceBound = true;
 
-      mConsumerService.setSubscriber(new Subscriber<Integer>() {
-        @Override public void onCompleted() {
-          Log.d(getClass().getSimpleName(), "startConsumerService()::observer::onCompleted()");
-          append("onCompleted()");
-        }
-
-        @Override public void onError(Throwable e) {
-
-        }
-
-        @Override public void onNext(Integer integer) {
-          Log.d(getClass().getSimpleName(), "startConsumerService()::observer::onNext() -> " + integer);
-          append("onNext(): " + String.valueOf(integer));
-        }
-      });
+      mPresenter.onServiceConnected();
     }
 
     @Override public void onServiceDisconnected(ComponentName name) {
       mConsumerServiceBound = false;
     }
   };
-
-  private void append(String text) {
-    String currentText = mConsumerStatus.getText().toString();
-
-    /*
-    if (!TextUtils.isEmpty(currentText)) {
-      currentText += ", " + text;
-    } else {
-      currentText += text;
-    }
-    */
-
-    //mConsumerStatus.setText(currentText);
-    mConsumerStatus.setText(String.format("%s\n%s", text, currentText));
-  }
 }
