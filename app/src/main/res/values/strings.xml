@@ -6,4 +6,6 @@
 
   <string name="start_consumer">Start RxConsumer</string>
   <string name="stop_consumer">Stop RxConsumer</string>
+
+  <string name="consuming">Consumed items from Socket via rxJava:</string>
 </resources>

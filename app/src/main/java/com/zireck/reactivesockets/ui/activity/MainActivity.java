@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
       mConsumerService.setSubscriber(new Subscriber<Integer>() {
         @Override public void onCompleted() {
           Log.d(getClass().getSimpleName(), "startConsumerService()::observer::onCompleted()");
-          append("onCompleted");
+          append("onCompleted()");
         }
 
         @Override public void onError(Throwable e) {
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
         @Override public void onNext(Integer integer) {
           Log.d(getClass().getSimpleName(), "startConsumerService()::observer::onNext() -> " + integer);
-          append(String.valueOf(integer));
+          append("onNext(): " + String.valueOf(integer));
         }
       });
     }
@@ -133,9 +133,16 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
   private void append(String text) {
     String currentText = mConsumerStatus.getText().toString();
+
+    /*
     if (!TextUtils.isEmpty(currentText)) {
       currentText += ", " + text;
+    } else {
+      currentText += text;
     }
-    mConsumerStatus.setText(currentText);
+    */
+
+    //mConsumerStatus.setText(currentText);
+    mConsumerStatus.setText(String.format("%s\n%s", text, currentText));
   }
 }
